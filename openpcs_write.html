@@ -1,0 +1,252 @@
+<!--
+*****************************************************************************
+
+  (c) SYSTEC electronic GmbH, D-08468 Heinsdorfergrund, Am Windrad 2
+      www.systec-electronic.com
+
+  Project:      Node-RED Node 'openpcs write'
+  Description:  Node configuration
+
+  -------------------------------------------------------------------------
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  -------------------------------------------------------------------------
+
+  Revision History:
+
+  2018/04/02 -rs:   V1.00 Initial version
+
+*****************************************************************************
+-->
+
+
+
+<!-- ============================================================ -->
+<!--            N O D E   H E L P   T E X T                       -->
+<!-- ============================================================ -->
+
+<script type="text/x-red" data-help-name="openpcs write">
+
+    <p>[Node-RED -> sysWORXX/OpenPCS] connector. Emits the <code>msg.payload</code> value from the flow into a OpenPCS variable.</p>
+    <p>The <b>Variable Path</b> specifies the full qualified path of the PLC variable to write (e.g. <i>Main.FB_Motor.Speed</i>)</p>
+    <p>The <b>Variable Type</b> specifies the type of the PLC variable. <i>AUTO</i> queries the type information from OpenPCS.
+    Alternatively a specific type can be selected to enforce a corresponding type conversion.</p>
+    <h3>Input</h3>
+    <dl class="message-properties">
+        <dt>topic <span class="property-type">string</span></dt>
+        <dd>As default topic the full qualified OpenPCS variable value is used (e.g. <i>`Main.FB_Motor.Speed`</i>. This can be overwritten by option <i>`use alternative topic`</i></dd>
+        <dt>payload <span class="property-type">string</span></dt>
+        <dd>As input payload the current value for the addressed OpenPCS variable is expected.</dd>
+    </dl>
+    <p><b>Note:</b> The data exchange with sysWORXX/OpenPCS is based on the <i>OpenPCS Symbol Table</i>. Therefore this feature must be enabled in the OpenPCS task configuration
+    <i>(PLC -> Resource Property... -> Download Symbol Table)</i></p>
+
+</script>
+
+
+
+<!-- ============================================================ -->
+<!--            N O D E   C O N F I G   D I A L O G               -->
+<!-- ============================================================ -->
+
+<script type="text/x-red" data-template-name="openpcs write">
+
+    <div class="form-row">
+        <label for="node-input-varpath"><i class="fa fa-external-link-square"></i> Variable Path</label>
+        <input type="text" id="node-input-varpath" placeholder="Main.FB_Motor.Speed">
+    </div>
+
+    <div class="form-row"  id="id-node-div-row-input-vartype">
+        <label for="node-input-vartype"> Variable Type</label>
+        <select type="text" id="node-input-vartype" size="1">
+            <option value="VARTYPE_AUTO">AUTO</option>
+            <option value="VARTYPE_STRING">STRING</option>
+            <option value="VARTYPE_BOOL">BOOL</option>
+            <option value="VARTYPE_BYTE">BYTE</option>
+            <option value="VARTYPE_USINT">USINT</option>
+            <option value="VARTYPE_SINT">SINT</option>
+            <option value="VARTYPE_WORD">WORD</option>
+            <option value="VARTYPE_UINT">UINT</option>
+            <option value="VARTYPE_INT">INT</option>
+            <option value="VARTYPE_DWORD">DWORD</option>
+            <option value="VARTYPE_UDINT">UDINT</option>
+            <option value="VARTYPE_DINT">DINT</option>
+            <option value="VARTYPE_REAL">REAL</option>
+            </select>
+    </div>
+
+    <hr size=1>
+
+    <div class="form-row">
+        <label for="node-input-optalttopic"><i class="fa fa-envelope-o"></i></label>
+        <input type="checkbox" id="node-input-optalttopic" style="width: auto; vertical-align: top;" onclick="FunEnableDisable(this.checked, 'node-input-alttopic')">
+        <label style="width: 150px;"> Use alternative topic</label>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-alttopic"></label>
+        <input type="text" id="node-input-alttopic" disabled="disabled">
+    </div>
+
+    <div class="form-tips" id="id-node-div-row-form-tip">
+        <b>Note:</b> As default topic the full qualified variable path is used. This can be overwritten by option <i>`use alternative topic`</i>.
+    </div>
+
+    <hr size=1>
+
+    <div class="form-row"  id="id-node-div-row-input-ipcstatindlvl">
+        <label for="node-input-ipcstatindlvl"><i class="fa fa-lightbulb-o"></i> IPC Status indication level</label>
+        <select type="text" id="node-input-ipcstatindlvl" size="1" onchange="FunLockUnlockInterval(this.value, 'node-input-newdataperiod')">
+            <option value="SHSTATE_NONE">None</option>
+            <option value="SHSTATE_IND">Indicator</option>
+            <option value="SHSTATE_IND_TSTAMP">Indicator & Timestamp</option>
+        </select>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-newdataperiod">"New Data" indication for</label>
+        <input type="number" id="node-input-newdataperiod" style="width: 5em;" min="1" max="10" value="3">&nbsp;&nbsp;Second(s)</input>
+    </div>
+
+    <hr size=1>
+
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+
+</script>
+
+
+<script language="javascript">
+
+    function FunEnableDisable(fEnableState_p, TextBoxID_p)
+    {
+        // adopt enable/disable state for edit box "node-input-alttopic" depending on check state of "node-input-optalttopic"
+        // (this function is called during runtime in response to a check state change of the checkbox;
+        // startup initialization is done by event handler "oneditprepare" below)
+        document.getElementById(TextBoxID_p).disabled = !fEnableState_p;
+    }
+
+    function FunLockUnlockInterval(strValue_p, NumBoxID_p)
+    {
+        // adopt enable/disable state for number box "node-input-newdataperiod" depending on selection change of "node-input-ipcstatindlvl"
+        // (this function is called during runtime in response to a change of the option box selection;
+        // startup initialization is done by event handler "oneditprepare" below)
+        var fEnableState;
+        // console.log("FunLockUnlockInterval: strValue_p=" + strValue_p);
+        if ((strValue_p == "SHSTATE_IND") || (strValue_p == "SHSTATE_IND_TSTAMP"))
+        {
+            fEnableState = true;
+        }
+        else
+        {
+            fEnableState = false;
+        }
+        document.getElementById(NumBoxID_p).disabled = !fEnableState;
+        if (document.getElementById(NumBoxID_p).value == "")
+        {
+            document.getElementById(NumBoxID_p).value = "3";
+        }
+    }
+
+ </script>
+
+
+
+<!-- ============================================================ -->
+<!--            N O D E   P R O P E R T I E S   S T R U C T       -->
+<!-- ============================================================ -->
+
+<script type="text/javascript">
+
+    RED.nodes.registerType('openpcs write',{
+        category: 'sysworxx-function',
+        color:"#d46c8a",
+        defaults: {
+            name:          {value:""},
+            varpath:       {value:"", required:true},
+            vartype:       {value:"", required:true},
+            optalttopic:   {value:false, required:false},
+            alttopic:      {value:"", required:false},
+            ipcstatindlvl: {value:"SHSTATE_IND", required:false},
+            newdataperiod: {value:"", required:false}
+        },
+        inputs:1,
+        outputs:0,
+        icon: "arrow-out.png",
+        align: "right",
+        label: function() {
+            return this.name||"openpcs write";
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        },
+
+        oneditprepare: function() {
+            //-------------------------------------------------------------------------------------
+            // initialize gui elements at dialog creation time (after configuration values are restored by Node-RED runtime environment)
+            // set startup initialization enable/disable state for edit box "node-input-alttopic" depending on
+            // check state of "node-input-optalttopic"
+            // (this function is called during startup (dialog creation time), adopts during runtime in response
+            // to a check state change of the checkbox are done by function "FunEnableDisable" above)
+            var fCheckedState;
+            fCheckedState = document.getElementById("node-input-optalttopic").checked;
+            document.getElementById("node-input-alttopic").disabled = !fCheckedState;
+            // console.log("oneditprepare -> fCheckedState=" + fCheckedState.toString());
+            //-------------------------------------------------------------------------------------
+            var strValue;
+            var fEnableState;
+            strValue = document.getElementById("node-input-ipcstatindlvl").value;
+            console.log("oneditprepare -> strValue=" + strValue);
+            if ((strValue == "SHSTATE_IND") || (strValue == "SHSTATE_IND_TSTAMP"))
+            {
+                fEnableState = true;
+            }
+            else
+            {
+                fEnableState = false;
+            }
+            document.getElementById("node-input-newdataperiod").disabled = !fEnableState;
+            if (document.getElementById("node-input-newdataperiod").value == "")
+            {
+                document.getElementById("node-input-newdataperiod").value = "3";
+            }
+            return;
+        },
+
+        oneditsave: function() {
+            var fCheckedState;
+            var strAltTopic;
+            fCheckedState = document.getElementById("node-input-optalttopic").checked;
+            if ( fCheckedState )
+            {
+                strAltTopic = document.getElementById("node-input-alttopic").value;
+                // console.log("oneditsave -> strAltTopic=" + strAltTopic);
+                if (strAltTopic.length == 0)
+                {
+                    RED.notify(RED._("notification.warning", {message:"Alternative Topic is selected but not specified."}),"warning");
+                }
+            }
+            return;
+        }
+
+    });
+
+</script>
+
+
+
+
+
