@@ -26,8 +26,8 @@ Run the following command in your node-RED user directory (typically `~/.node-re
 
 ## Content
 
-openpcs_read:   node to read data from OpenPCS (OpenPCS -> Node-RED)
-openpcs_write:  node to write data to OpenPCS (Node-RED -> OpenPCS)
+- *openpcs_read*:   node to read data from OpenPCS (OpenPCS -> Node-RED)
+- *openpcs_write*:  node to write data to OpenPCS (Node-RED -> OpenPCS)
 
 
 ## Node status
