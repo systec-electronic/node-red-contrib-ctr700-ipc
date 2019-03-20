@@ -25,6 +25,7 @@
   Revision History:
 
   2018/04/02 -rs:   V1.00 Initial version
+  2019/03/20 -ad:   V1.01 Fix handling for initial value
 
 ****************************************************************************/
 
@@ -45,7 +46,6 @@ module.exports = function(RED)
     //  Import external modules
     //=======================================================================
 
-    const RedRuntimeEvents = require('/usr/lib/node_modules/node-red/red/runtime/events');
     const Ipc = require('./ipcclient.js');
 
 
@@ -111,8 +111,11 @@ module.exports = function(RED)
         // register handler for event type 'close'
         ThisNode.on ('close', OpenPCS_Write_NodeHandler_OnClose);
 
-        // register one-time handler for event type 'nodes-started'
-        RedRuntimeEvents.once ('nodes-started', OpenPCS_Write_NodeHandler_OnNodesStarted);
+        // register one-time handler for sending the initial value
+        ThisNode.m_injectImmediate = setImmediate(function()
+        {
+            OpenPCS_Write_NodeHandler_OnNodesStarted();
+        });
 
         // run handler for event type 'open'
         OpenPCS_Write_NodeHandler_OnOpen (NodeConfig_p);
@@ -282,6 +285,12 @@ module.exports = function(RED)
         {
 
             TraceMsg ('{OpenPCS_Write_Node} closing...');
+
+            // clear immediate timeout
+            if (ThisNode.m_injectImmediate)
+            {
+                clearImmediate(ThisNode.m_injectImmediate);
+            }
 
             // cancel possibly running status timer
             if ( ThisNode.m_ObjStatusTimer )
