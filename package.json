@@ -10,7 +10,7 @@
     "ref-array": "1.2.0",
     "ref-struct": "1.1.0"
   },
-  "keywords": [ 
+  "keywords": [
     "sysworxx",
     "ctr700",
     "node-red"
@@ -27,4 +27,3 @@
     }
   }
 }
-
