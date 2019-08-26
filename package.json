@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-ctr700-ipc",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Node-RED nodes for SYS TEC sysWORXX CTR-700 series",
   "author": "Ronald Sieber",
   "license": "Apache-2.0",
@@ -15,10 +15,10 @@
     "ctr700",
     "node-red"
   ],
-  "homepage": "https://github.com/systec-rs/node-red-contrib-ctr700-ipc",
+  "homepage": "https://www.systec-electronic.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/systec-rs/node-red-contrib-ctr700-ipc.git"
+    "url": "https://github.com/systec-electronic/node-red-contrib-ctr700-ipc.git"
   },
   "node-red": {
     "nodes": {
