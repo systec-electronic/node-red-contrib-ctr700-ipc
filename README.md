@@ -2,7 +2,7 @@
 ## About
 
 The 'node-red-contrib-ctr700-ipc' is a Node-RED node collection for
-the sysWORXX CTR-700 Edge Controller from SYS TEC electronic GmbH
+the sysWORXX CTR-700 Edge Controller from SYS TEC electronic AG
 (see https://www.systec-electronic.com/en/products/internet-of-things/sysworxx-ctr-700)
 
 This node collection supports the data exchange between OpenPCS
